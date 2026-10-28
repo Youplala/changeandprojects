@@ -1,0 +1,43 @@
+---
+import { withBase } from '../utils/paths';
+import Arrow from './Arrow.astro';
+import Brand from './Brand.astro';
+const isTraining = Astro.url.pathname.startsWith(withBase('/formations'));
+const home = Astro.url.pathname === withBase('/');
+---
+<header class="site-header wrap">
+  <Brand />
+  <nav aria-label="Navigation principale">
+    <a href={home ? '#expertises' : withBase('/#expertises')}>L’approche</a>
+    <a href={withBase('/formations/')} aria-current={isTraining ? 'page' : undefined}>Les formations</a>
+    <a href={home ? '#charles-antoine' : withBase('/#charles-antoine')}>Charles-Antoine</a>
+  </nav>
+  <a class="header-contact" href={home ? '#contact' : withBase('/#contact')}>Parlons de votre projet <Arrow diagonal /></a>
+  <button class="menu-toggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-navigation"><span></span><span></span></button>
+</header>
+<nav id="mobile-navigation" class="mobile-navigation" aria-label="Navigation mobile" hidden>
+  <a href={withBase('/#expertises')}>L’approche <Arrow /></a>
+  <a href={withBase('/formations/')}>Les formations <Arrow /></a>
+  <a href={withBase('/#charles-antoine')}>Charles-Antoine <Arrow /></a>
+  <a href={withBase('/#contact')}>Parlons de votre projet <Arrow diagonal /></a>
+</nav>
+<script>
+  const button = document.querySelector<HTMLButtonElement>('.menu-toggle');
+  const menu = document.querySelector<HTMLElement>('#mobile-navigation');
+  function closeMenu() {
+    button?.setAttribute('aria-expanded', 'false');
+    button?.setAttribute('aria-label', 'Ouvrir le menu');
+    if (menu) menu.hidden = true;
+  }
+  button?.addEventListener('click', () => {
+    const expanded = button.getAttribute('aria-expanded') === 'true';
+    button.setAttribute('aria-expanded', String(!expanded));
+    button.setAttribute('aria-label', expanded ? 'Ouvrir le menu' : 'Fermer le menu');
+    if (menu) menu.hidden = expanded;
+  });
+  menu?.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && button?.getAttribute('aria-expanded') === 'true') { closeMenu(); button.focus(); }
+  });
+  matchMedia('(min-width: 1001px)').addEventListener('change', (event) => { if (event.matches) closeMenu(); });
+</script>

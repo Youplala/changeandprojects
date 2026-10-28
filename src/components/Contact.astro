@@ -1,0 +1,15 @@
+---
+import { site } from '../data/site';
+import Arrow from './Arrow.astro';
+---
+<section class="contact-section wrap" id="contact" aria-labelledby="contact-title">
+  <p class="eyebrow"><span class="status-dot"></span> Tout commence par un échange</p>
+  <div class="contact-content">
+    <h2 id="contact-title">Et si on faisait<br/>le premier <em>pas ?</em></h2>
+    <div class="contact-aside">
+      <p>Une transformation à accompagner,<br class="desktop-break"/> un projet à faire avancer,<br class="desktop-break"/> une équipe à faire grandir.</p>
+      <a class="button button-red" href={site.email ? `mailto:${site.email}` : site.linkedin} target={site.email ? undefined : '_blank'} rel={site.email ? undefined : 'noopener noreferrer'}>{site.email ? 'Échanger par e-mail' : 'Échangeons sur LinkedIn'}<Arrow diagonal /></a>
+      <span class="contact-name">Avec Charles-Antoine Patarroni</span>
+    </div>
+  </div>
+</section>

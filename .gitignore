@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+.env
+.env.*
+!.env.example
+.sites-runtime/
+qa/
+
+# Local workspace metadata and reference originals are not published.
+.openai/
+.codex/
+*.log
+assets/reference/*
+!assets/reference/brand-walker-imagegen.png

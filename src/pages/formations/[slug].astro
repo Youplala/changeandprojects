@@ -1,0 +1,15 @@
+---
+import { withBase } from '../../utils/paths';
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Contact from '../../components/Contact.astro';
+import { getPublishedTrainings, type Training } from '../../data/site';
+export const getStaticPaths = (() => getPublishedTrainings().map((training) => ({ params: { slug: training.slug }, props: { training } }))) satisfies GetStaticPaths;
+interface Props { training: Training; }
+const { training } = Astro.props;
+---
+<BaseLayout title={training.title} description={training.summary}>
+  <section class="page-hero wrap"><a class="breadcrumb" href={withBase('/formations/')}>Les formations <span>/</span> <span>{training.title}</span></a><p class="eyebrow">Formation</p><h1>{training.title}</h1><p class="page-introduction">{training.summary}</p></section>
+  <div class="training-detail wrap"><aside class="training-facts"><h2>En pratique</h2><dl><dt>Durée</dt><dd>{training.duration}</dd><dt>Format</dt><dd>{training.format}</dd><dt>Tarif</dt><dd>{training.price}</dd><dt>Public</dt><dd>{training.audience.join(', ')}</dd></dl><a class="button button-red" href="#contact">Parlons de votre besoin →</a></aside><div class="training-body"><section><h2>Les objectifs</h2><ul>{training.objectives.map((objective) => <li>{objective}</li>)}</ul></section><section><h2>Le programme</h2>{training.program.map((part) => <div><h3>{part.title}</h3><ul>{part.items.map((item) => <li>{item}</li>)}</ul></div>)}</section><section><h2>Prérequis</h2><p>{training.prerequisites}</p></section><section><h2>Méthodes pédagogiques</h2><p>{training.methods}</p></section><section><h2>Évaluation</h2><p>{training.assessment}</p></section><section><h2>Accessibilité</h2><p>{training.accessibility}</p></section></div></div>
+  <Contact />
+</BaseLayout>

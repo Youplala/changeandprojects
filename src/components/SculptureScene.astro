@@ -1,0 +1,77 @@
+---
+import WalkingSculpture from './WalkingSculpture.astro';
+---
+<div class="sculpture-stage" data-depth-scene>
+  <div class="sculpture-world">
+    <WalkingSculpture class="walking-figure" />
+  </div>
+</div>
+
+<script>
+  const scene = document.querySelector<HTMLElement>('[data-depth-scene]');
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  const pointer = matchMedia('(hover: hover) and (pointer: fine)');
+
+  if (scene) {
+    let frame = 0;
+    let previousTime = 0;
+    let visible = true;
+    let x = 0, y = 0, targetX = 0, targetY = 0;
+    const clamp = (value: number) => Math.max(-1, Math.min(1, value));
+
+    function render(time: number) {
+      frame = 0;
+      if (!scene || motion.matches || !pointer.matches || !visible || document.hidden) return;
+      // Time-based easing converges without overshoot, at every refresh rate.
+      const elapsed = previousTime ? Math.min(time - previousTime, 50) : 16;
+      previousTime = time;
+      const blend = 1 - Math.exp(-elapsed / 130);
+      x += (targetX - x) * blend;
+      y += (targetY - y) * blend;
+      const moving = Math.abs(targetX - x) + Math.abs(targetY - y) > 0.001;
+      if (!moving) { x = targetX; y = targetY; }
+      scene.style.setProperty('--depth-x', x.toFixed(4));
+      scene.style.setProperty('--depth-y', y.toFixed(4));
+      if (moving) frame = requestAnimationFrame(render);
+      else previousTime = 0;
+    }
+
+    function wake() {
+      if (!frame && !motion.matches && pointer.matches && visible && !document.hidden) {
+        frame = requestAnimationFrame(render);
+      }
+    }
+
+    function reset() {
+      cancelAnimationFrame(frame);
+      frame = previousTime = x = y = targetX = targetY = 0;
+      scene?.style.removeProperty('--depth-x');
+      scene?.style.removeProperty('--depth-y');
+    }
+
+    scene.addEventListener('pointermove', (event) => {
+      if (!pointer.matches || motion.matches || event.pointerType === 'touch') return;
+      // Measure the stationary container, never the transformed image.
+      const bounds = scene.getBoundingClientRect();
+      if (!bounds.width || !bounds.height) return;
+      targetX = clamp(((event.clientX - bounds.left) / bounds.width - 0.5) * 2);
+      targetY = clamp(((event.clientY - bounds.top) / bounds.height - 0.5) * 2);
+      wake();
+    }, { passive: true });
+    scene.addEventListener('pointerleave', () => { targetX = targetY = 0; wake(); });
+    scene.addEventListener('pointercancel', reset);
+    window.addEventListener('resize', reset, { passive: true });
+    window.addEventListener('blur', reset);
+    window.addEventListener('pageshow', reset);
+    document.addEventListener('visibilitychange', reset);
+    motion.addEventListener('change', reset);
+    pointer.addEventListener('change', reset);
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([entry]) => {
+        visible = entry.isIntersecting;
+        if (!visible) reset();
+      }).observe(scene);
+    }
+  }
+</script>

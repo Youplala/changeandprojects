@@ -1,0 +1,14 @@
+---
+import { withBase } from '../utils/paths';
+interface Props { class?: string; }
+const { class: className = '' } = Astro.props;
+---
+<img
+  class={className}
+  src={withBase('/images/giacometti-homme-qui-marche-detoure.png')}
+  width="888"
+  height="1771"
+  alt="L’Homme qui marche I, sculpture en bronze d’Alberto Giacometti, photographiée de profil et détourée."
+  decoding="async"
+  fetchpriority="high"
+/>
